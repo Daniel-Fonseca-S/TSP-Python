@@ -38,9 +38,15 @@ class ThreadToRun(threading.Thread):
             if TSPSolver.best_distance <= self.true_optimal_solution:
                 break
 
-            if TSPSolver.exec_time_found >= 300:
-                print("Thread timed out")
-                break
+            if time.perf_counter() - start_time >= 900:
+                if not ThreadToRun.results:
+                    TSPSolver.reset_tsp_solver()
+                    start_time = time.perf_counter()
+                    print("Thread restarting due to timeout with no results")
+                else:
+                    print("Thread timed out")
+                    break
+
         total_time = time.perf_counter() - start_time
 
         ThreadToRun.results.append({
@@ -50,7 +56,7 @@ class ThreadToRun(threading.Thread):
             'time': total_time
         })
         print(f"Thread finished with distance: {TSPSolver.best_distance} and time: {total_time} seconds and "
-              f"{TSPSolver.iterations} iterations")
+                  f"{TSPSolver.iterations} iterations")
 
     @staticmethod
     def get_best_result():
